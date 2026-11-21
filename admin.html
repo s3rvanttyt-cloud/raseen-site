@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة الإدارة | رصين</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0C2350">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .adm-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px}
+  .adm-list{display:grid;gap:10px}
+  .adm-row{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .adm-row.unread{border-inline-start:4px solid var(--sky-deep)}
+  .adm-row .t{font-weight:600;color:var(--ink)}
+  .adm-row .s{font-size:.88rem;color:var(--muted)}
+  .adm-row .acts{display:flex;gap:6px;flex-wrap:wrap}
+  .thumbs{display:flex;gap:8px;flex-wrap:wrap}
+  .thumbs figure{margin:0;position:relative}
+  .thumbs img{width:84px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+  .thumbs button{position:absolute;top:-8px;left:-8px;width:24px;height:24px;border-radius:50%;border:0;background:var(--full);color:#fff;cursor:pointer;line-height:1}
+  .login{max-width:420px;margin:56px auto}
+</style>
+</head>
+<body>
+<header class="site-head"><div class="wrap">
+  <a class="brand" href="./"><span class="logo"><img src="assets/logo.svg" alt=""></span><span><b>رصين</b><small>لوحة الإدارة</small></span></a>
+  <nav class="nav" id="adm-user" aria-label="الحساب"></nav>
+</div></header>
+<main id="main" tabindex="-1"><div class="loading">جارٍ التحميل…</div></main>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="assets/vendor/supabase.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>
