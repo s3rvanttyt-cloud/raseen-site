@@ -20,3 +20,7 @@ Framework preset: None · Build command: (فارغ) · Build output directory: `
 ## إضافة مسؤول جديد
 1. Supabase ← Authentication ← Add user (بريد وكلمة مرور).
 2. SQL Editor: `insert into public.admins values ('email@example.com');`
+
+## تطبيق الويب (PWA)
+- `manifest.webmanifest` و`sw.js` و`assets/icons/` تجعل الموقع قابلاً للتثبيت على الشاشة الرئيسية.
+- **عند كل تحديث للملفات الثابتة** غيّر رقم `VERSION` في `sw.js` حتى يصل التحديث للأجهزة المثبّتة فوراً.

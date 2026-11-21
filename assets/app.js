@@ -435,3 +435,33 @@ async function suggestPage() {
 function notFound() {
   main.innerHTML = `<div class="wrap section"><div class="empty"><b>الصفحة غير موجودة</b><a href="#/">العودة إلى الرئيسية</a></div></div>`;
 }
+
+/* ---------- اقتراح التثبيت على الشاشة الرئيسية ---------- */
+(() => {
+  const KEY = 'raseen-install-dismissed';
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  let dismissed = false; try { dismissed = Date.now() - Number(localStorage.getItem(KEY) || 0) < 1000 * 60 * 60 * 24 * 14; } catch {}
+  if (standalone || dismissed) return;
+  const ua = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isSafari = isIOS && !/CriOS|FxiOS|EdgiOS/.test(ua);
+  const shareIcon = '<svg class="share" viewBox="0 0 24 24" fill="none" stroke="#1F66B3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
+  function show(text, withButton, onInstall) {
+    const box = document.createElement('aside');
+    box.className = 'install'; box.setAttribute('aria-label', 'تثبيت تطبيق رصين');
+    box.innerHTML = `<img src="/assets/icons/icon-192.png" alt=""><div><b>أضف رصين إلى شاشتك الرئيسية</b><p>${text}</p></div>
+      <div class="acts">${withButton ? '<button class="btn btn-ink btn-sm" data-i>تثبيت</button>' : ''}<button class="linkish" data-x>لاحقاً</button></div>`;
+    document.body.appendChild(box);
+    const close = () => { box.remove(); try { localStorage.setItem(KEY, Date.now()); } catch {} };
+    box.querySelector('[data-x]').onclick = close;
+    if (withButton) box.querySelector('[data-i]').onclick = async () => { await onInstall(); close(); };
+  }
+  if (isSafari) {
+    setTimeout(() => show(`اضغط زر المشاركة ${shareIcon} في Safari، ثم «إضافة إلى الشاشة الرئيسية».`, false), 4000);
+  } else {
+    addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      setTimeout(() => show('يفتح بملء الشاشة وبسرعة، مثل أي تطبيق.', true, async () => { e.prompt(); await e.userChoice; }), 3000);
+    });
+  }
+})();

@@ -1,0 +1,25 @@
+{
+  "name": "رصين: نادي الأبحاث الطبية",
+  "short_name": "رصين",
+  "description": "نادي الأبحاث الطبية في جامعة نجران: الإعلانات، والحلقات البحثية، والفريق.",
+  "lang": "ar",
+  "dir": "rtl",
+  "id": "/",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0C2350",
+  "theme_color": "#0C2350",
+  "categories": ["education", "medical"],
+  "icons": [
+    { "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "الحلقات البحثية", "url": "/#/circles", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "الإعلانات", "url": "/#/events", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "اقترح", "url": "/#/suggest", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

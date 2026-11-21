@@ -284,3 +284,16 @@ main:focus,main:focus-visible{outline:none}
   .nav a{padding:6px 10px;font-size:.9rem}
   .site-head{position:static}
 }
+
+/* ---------- App mode (installed) ---------- */
+.site-head{padding-top:env(safe-area-inset-top)}
+.site-head .wrap{padding-inline:max(clamp(18px,4vw,36px),env(safe-area-inset-right)) max(clamp(18px,4vw,36px),env(safe-area-inset-left))}
+.site-foot .wrap{padding-bottom:max(28px,env(safe-area-inset-bottom))}
+@media (display-mode:standalone){.site-head{position:sticky}}
+.install{position:fixed;inset-inline:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:60;max-width:520px;margin-inline:auto;background:#fff;color:var(--text);border:1px solid var(--line);border-radius:18px;padding:16px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;box-shadow:0 12px 32px rgba(7,23,53,.22)}
+.install img{width:48px;height:48px;border-radius:12px}
+.install b{display:block;color:var(--ink);font-size:1rem;line-height:1.4}
+.install p{margin:2px 0 0;font-size:.88rem;color:var(--muted);line-height:1.6}
+.install .share{display:inline-block;vertical-align:-3px;width:16px;height:16px}
+.install .acts{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+@media (prefers-reduced-motion:no-preference){.install{animation:rise .35s cubic-bezier(.2,.8,.2,1) both}@keyframes rise{from{transform:translateY(24px);opacity:0}}}
