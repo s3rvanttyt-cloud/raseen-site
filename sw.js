@@ -2,12 +2,12 @@
    - الصفحات: من الشبكة أولاً، ومن النسخة المحفوظة إذا انقطع الاتصال
    - الملفات الثابتة (خطوط، أيقونات، CSS، JS): من النسخة المحفوظة فوراً مع تحديثها في الخلفية
    - طلبات قاعدة البيانات (Supabase) لا تُحفظ أبداً */
-const VERSION = 'raseen-v2';
+const VERSION = 'raseen-v3';
 const CORE = [
   '/', '/manifest.webmanifest',
   '/assets/style.css', '/assets/common.js', '/assets/app.js', '/assets/vendor/supabase.js',
-  '/assets/logo.svg', '/assets/favicon.svg', '/assets/icons/icon-192.png',
-  '/assets/fonts/reem-kufi-arabic-700-normal.woff2', '/assets/fonts/reem-kufi-arabic-500-normal.woff2',
+  '/assets/logo-mark.png', '/assets/logo-full.png', '/assets/icons/icon-192.png',
+  '/assets/fonts/noto-sans-arabic-arabic-800-normal.woff2',
   '/assets/fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2', '/assets/fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2',
   '/assets/fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2',
 ];

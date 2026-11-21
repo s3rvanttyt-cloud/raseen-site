@@ -15,7 +15,7 @@ Framework preset: None · Build command: (فارغ) · Build output directory: `
 `.github/workflows/keepalive.yml` يقرأ من قاعدة البيانات مرتين أسبوعياً حتى لا يوقف Supabase المشروع المجاني.
 
 ## تغيير الشعار
-استبدل `assets/logo.svg` بشعار النادي (أو ضع `logo.png` وعدّل المسار في `index.html` و`admin.html`).
+الشعار الحالي مقصوص من بوستر النادي (`assets/logo-mark.png` و`assets/logo-full.png` وأيقونات `assets/icons/`). استبدلها بملفات الشعار الأصلية بنفس الأسماء لجودة أعلى.
 
 ## إضافة مسؤول جديد
 1. Supabase ← Authentication ← Add user (بريد وكلمة مرور).

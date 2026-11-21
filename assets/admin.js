@@ -21,6 +21,8 @@ const TABLES = {
       { k: 'kind', l: 'النوع', type: 'select', opts: KINDS },
       { k: 'starts_at', l: 'التاريخ والوقت (بتوقيت السعودية)', type: 'datetime', req: 1 },
       { k: 'location', l: 'المكان' },
+      { k: 'presenter', l: 'يقدّمها (مثل: الطالبة ريماس اليامي)' },
+      { k: 'objectives', l: 'محاور اللقاء وأهدافه (كل محور في سطر)', type: 'lines' },
       { k: 'summary', l: 'نبذة قصيرة (تظهر في البطاقة)', type: 'textarea' },
       { k: 'details', l: 'التفاصيل الكاملة', type: 'textarea' },
       { k: 'register_url', l: 'رابط التسجيل (اختياري)', type: 'url' },
@@ -55,7 +57,7 @@ const TABLES = {
     ],
   },
 };
-const TABS = [['events', 'الإعلانات والفعاليات'], ['leaders', 'الإدارة'], ['members', 'الأعضاء'], ['circles', 'الحلقات البحثية'], ['suggestions', 'الاقتراحات'], ['account', 'الحساب']];
+const TABS = [['events', 'الإعلانات والفعاليات'], ['leaders', 'الإدارة'], ['members', 'الأعضاء'], ['circles', 'الحلقات البحثية'], ['suggestions', 'الاقتراحات'], ['word', 'كلمة الرئيسة'], ['account', 'الحساب']];
 let tab = (location.hash.slice(1) || 'events');
 
 /* ---------- الدخول ---------- */
@@ -107,6 +109,7 @@ async function panel() {
     if (TABLES[tab]) await crudList(tab);
     else if (tab === 'circles') await circlesAdmin();
     else if (tab === 'suggestions') await suggestionsAdmin();
+    else if (tab === 'word') await wordAdmin();
     else accountView();
   } catch (e) { console.error(e); p.innerHTML = `<div class="empty"><b>تعذّر التحميل</b>${esc(errText(e))}</div>`; }
 }
@@ -146,6 +149,7 @@ function editForm(t, row, all) {
     const v = r[f.k], id = 'f-' + f.k;
     const lab = `<label for="${id}">${f.l}</label>`;
     switch (f.type) {
+      case 'lines': return `<div class="field">${lab}<textarea id="${id}" name="${f.k}">${esc((v || []).join('\n'))}</textarea></div>`;
       case 'textarea': return `<div class="field">${lab}<textarea id="${id}" name="${f.k}">${esc(v)}</textarea></div>`;
       case 'select': return `<div class="field">${lab}<select id="${id}" name="${f.k}">${f.opts.map(o => `<option ${o === v ? 'selected' : ''}>${o}</option>`).join('')}</select></div>`;
       case 'datetime': return `<div class="field">${lab}<input id="${id}" name="${f.k}" type="datetime-local" value="${toLocalInput(v)}" ${f.req ? 'required' : ''}></div>`;
@@ -189,6 +193,7 @@ function editForm(t, row, all) {
     for (const fl of cfg.fields) {
       if (fl.type === 'image' || fl.type === 'images') { rec[fl.k] = state[fl.k]; continue; }
       let v = fd.get(fl.k);
+      if (fl.type === 'lines') { rec[fl.k] = String(v || '').split('\n').map(x => x.trim()).filter(Boolean); continue; }
       if (fl.type === 'datetime') v = fromLocalInput(v);
       else if (fl.type === 'number') v = Number(v) || 0;
       else if (fl.type === 'parent') v = v || null;
@@ -266,6 +271,22 @@ async function suggestionsAdmin() {
     const { error } = await sb.from('suggestions').delete().eq('id', b.dataset.del);
     if (error) return toast(errText(error), true); panel();
   });
+}
+
+/* ---------- كلمة الرئيسة ---------- */
+async function wordAdmin() {
+  const row = await q(sb.from('settings').select('value').eq('key', 'president_word').maybeSingle());
+  $('#panel').innerHTML = `<div class="card" style="max-width:720px"><h2 style="font-size:1.4rem;margin-bottom:6px">كلمة رئيسة النادي</h2>
+    <p class="muted">تظهر في الصفحة الرئيسية باسم رأس الهيكل الإداري. اتركها فارغة لإخفائها.</p>
+    <form class="form" novalidate><div class="field"><label for="w">الكلمة</label><textarea id="w" style="min-height:200px">${esc(row?.value || '')}</textarea></div>
+    <p class="err" role="alert"></p><button class="btn btn-ink" type="submit">حفظ الكلمة</button></form></div>`;
+  const f = $('#panel form');
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const { error } = await sb.from('settings').upsert({ key: 'president_word', value: $('#w').value.trim() || null, updated_at: new Date().toISOString() });
+    if (error) { $('.err', f).textContent = errText(error); return; }
+    toast('حُفظت الكلمة.');
+  };
 }
 
 /* ---------- الحساب ---------- */

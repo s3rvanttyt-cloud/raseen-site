@@ -4,7 +4,7 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const main = $('#main');
 
 const routes = {
-  '': [home, 'رصين | نادي الأبحاث الطبية'],
+  '': [home, 'رصين | نادي رصين للأبحاث العلمية'],
   events: [eventsPage, 'الإعلانات'],
   archive: [archivePage, 'الفعاليات الماضية'],
   event: [eventPage, 'تفاصيل الفعالية'],
@@ -61,12 +61,14 @@ function eventCard(e, past = false) {
     <div>
       ${exampleTag(e.title)}<span class="pill">${esc(e.kind)}</span>
       <h3><a href="#/event/${e.id}">${cleanTitle(e.title)}</a></h3>
+      ${e.presenter ? `<div class="presenter"><span>يقدّمها</span>${esc(e.presenter)}</div>` : ''}
       <div class="meta">
         <span>${ICONS.cal}${F.full.format(d)}</span>
         <span>${ICONS.clock}${F.time.format(d)}</span>
         ${e.location ? `<span>${ICONS.pin}${esc(e.location)}</span>` : ''}
       </div>
       ${e.summary ? `<p>${esc(e.summary)}</p>` : ''}
+      ${past && (e.gallery || []).length ? `<div class="ev-thumbs">${e.gallery.map(safeUrl).filter(Boolean).slice(0, 4).map(g => `<img src="${esc(g)}" alt="" loading="lazy">`).join('')}</div>` : ''}
       <div class="row">
         <a class="btn btn-line btn-sm" href="#/event/${e.id}">${past ? 'عرض الفعالية' : 'التفاصيل'}</a>
         ${!past && reg ? `<a class="btn btn-ink btn-sm" href="${esc(reg)}" target="_blank" rel="noopener">سجّل حضورك</a>` : ''}
@@ -84,8 +86,8 @@ function heroRing() {
     s += `<circle class="seat${i < on ? ' on' : ''}" style="animation-delay:${200 + i * 90}ms" cx="${(c + r * Math.cos(a)).toFixed(1)}" cy="${(c + r * Math.sin(a)).toFixed(1)}" r="15"/>`;
   }
   return `<svg class="hero-ring" viewBox="0 0 400 400" aria-hidden="true">
-    <circle class="core" cx="200" cy="200" r="120"/><circle class="core" cx="200" cy="200" r="72"/>
-    ${s}<text x="200" y="204" text-anchor="middle" dominant-baseline="middle" font-size="64" font-weight="700">ر</text></svg>`;
+    <circle class="core" cx="200" cy="200" r="132"/>
+    ${s}</svg>`;
 }
 
 async function home() {
@@ -93,17 +95,19 @@ async function home() {
   <section class="hero">
     <div class="wrap">
       <div>
-        <h1>رصين</h1>
-        <p class="tag">نادي الأبحاث الطبية في جامعة نجران</p>
-        <p class="lede">نجمع طلاب الكليات الصحية بأعضاء هيئة التدريس حول أسئلة بحثية حقيقية: لقاءات علمية، وورش منهجية، وحلقات بحثية يقودها دكاترة الجامعة.</p>
+        <p class="hello">أهلاً بك في</p>
+        <h1>نادي رصين للأبحاث العلمية</h1>
+        <div class="rule" aria-hidden="true"></div>
+        <p class="lede">مساحة لطلاب وطالبات الكليات الصحية في جامعة نجران، نتعلم فيها البحث العلمي خطوة بخطوة: ورش ولقاءات علمية، وحلقات بحثية يشرف عليها دكاترة الجامعة، وزملاء يرافقونك من الفكرة الأولى حتى البحث المكتمل.</p>
         <div class="actions">
           <a class="btn btn-sky" href="#/circles">تصفّح الحلقات البحثية</a>
           <a class="btn btn-ghost" href="#/events">الإعلانات</a>
         </div>
       </div>
-      ${heroRing()}
+      <div class="hero-mark">${heroRing()}<img src="assets/logo-mark.png" alt=""></div>
     </div>
   </section>
+  <section class="section" id="word-sec" hidden><div class="wrap" id="word"></div></section>
   <section class="section"><div class="wrap" id="next-event"><div class="loading">جارٍ التحميل…</div></div></section>
   <section class="section" style="padding-top:0"><div class="wrap" id="open-circles"></div></section>
   <section class="section" style="padding-top:0"><div class="wrap">
@@ -113,7 +117,16 @@ async function home() {
     </div>
   </div></section>`;
 
-  const [up, circles] = await Promise.all([getUpcoming(), getCircles()]);
+  const [up, circles, word, heads] = await Promise.all([getUpcoming(), getCircles(),
+    q(sb.from('settings').select('value').eq('key', 'president_word').maybeSingle()).catch(() => null),
+    q(sb.from('leaders').select('name,role').is('parent_id', null).order('sort').limit(1)).catch(() => [])]);
+  if (word?.value?.trim()) {
+    const h = heads[0];
+    $('#word').innerHTML = `<h2>كلمة رئيسة النادي</h2><figure class="word" style="margin:0"><div class="q" aria-hidden="true">«</div>
+      <div><blockquote style="margin:0"><p>${esc(word.value.trim())}</p></blockquote>
+      ${h ? `<figcaption class="by">${esc(h.name)}<span>${esc(h.role)}</span></figcaption>` : ''}</div></figure>`;
+    $('#word-sec').hidden = false;
+  }
   const ne = $('#next-event');
   if (!up.length) {
     ne.innerHTML = `<h2>الفعالية القادمة</h2><div class="empty"><b>لا توجد فعاليات معلنة حالياً</b>تابعنا على <a href="https://x.com/Raseen_NU" target="_blank" rel="noopener">@Raseen_NU</a> ليصلك الإعلان القادم، أو اطّلع على <a href="#/archive">الفعاليات الماضية</a>.</div>`;
@@ -125,6 +138,7 @@ async function home() {
         <div>
           ${exampleTag(e.title)}<span class="pill">${esc(e.kind)}</span>
           <h3>${cleanTitle(e.title)}</h3>
+          ${e.presenter ? `<div class="presenter"><span>يقدّمها</span>${esc(e.presenter)}</div>` : ''}
           <div class="event"><div class="meta" style="margin:0 0 10px">
             <span>${ICONS.cal}${F.full.format(d)}، ${F.hijri.format(d)}</span>
             <span>${ICONS.clock}${F.time.format(d)}</span>
@@ -150,7 +164,7 @@ async function home() {
 /* ---------- الإعلانات ---------- */
 async function eventsPage() {
   const up = await getUpcoming();
-  main.innerHTML = pageHead('الإعلانات', 'الفعاليات القادمة للنادي، الأقرب أولاً. التوقيت بتوقيت السعودية.') +
+  main.innerHTML = pageHead('الإعلانات', 'ورش ولقاءات قادمة، الأقرب أولاً. الحضور مفتوح لطلاب وطالبات الكليات الصحية، والتوقيت بتوقيت السعودية.') +
     `<section class="section"><div class="wrap">${up.length ? `<div class="events">${up.map(e => eventCard(e)).join('')}</div>`
       : `<div class="empty"><b>لا توجد إعلانات حالياً</b>تابع حساب النادي <a href="https://x.com/Raseen_NU" target="_blank" rel="noopener">@Raseen_NU</a> لتصلك الإعلانات أولاً بأول.</div>`}</div></section>`;
 }
@@ -160,7 +174,7 @@ async function archivePage() {
   const past = await getPast();
   const years = {};
   past.forEach(e => { const y = new Date(e.starts_at).getFullYear(); (years[y] ||= []).push(e); });
-  main.innerHTML = pageHead('الفعاليات الماضية', 'سجلّ كل ما أقامه النادي من لقاءات وورش، مع صورها وملخصاتها.') +
+  main.innerHTML = pageHead('الفعاليات الماضية', 'ما تعلمناه معاً: كل لقاء وورشة أقامها النادي، ومن قدّمها، وصور من الحضور.') +
     `<section class="section"><div class="wrap">${past.length
       ? Object.keys(years).sort((a, b) => b - a).map(y => `<h2 style="font-size:var(--step-2);margin:8px 0 14px">${y}</h2><div class="events" style="margin-bottom:28px">${years[y].map(e => eventCard(e, true)).join('')}</div>`).join('')
       : `<div class="empty"><b>لم تُضف فعاليات ماضية بعد</b>ستظهر هنا الفعاليات بعد انتهاء موعدها تلقائياً.</div>`}</div></section>`;
@@ -180,8 +194,10 @@ async function eventPage(id) {
       <dt>التاريخ</dt><dd>${F.full.format(d)}<br><span class="muted">${F.hijri.format(d)}</span></dd>
       <dt>الوقت</dt><dd>${F.time.format(d)}</dd>
       ${e.location ? `<dt>المكان</dt><dd>${esc(e.location)}</dd>` : ''}
+      ${e.presenter ? `<dt>التقديم</dt><dd>${esc(e.presenter)}</dd>` : ''}
     </dl>
     ${e.summary ? `<p style="font-size:var(--step-1);color:var(--ink)">${esc(e.summary)}</p>` : ''}
+    ${(e.objectives || []).length ? `<h2 style="font-size:var(--step-1);margin-top:20px">محاور اللقاء وأهدافه</h2><ul class="objectives">${e.objectives.map(o => `<li>${esc(o)}</li>`).join('')}</ul>` : ''}
     ${e.details ? `<p class="prose">${esc(e.details)}</p>` : ''}
     ${!past && reg ? `<p><a class="btn btn-ink" href="${esc(reg)}" target="_blank" rel="noopener">سجّل حضورك</a></p>` : ''}
     ${gallery.length ? `<h2 style="font-size:var(--step-2);margin-top:28px">من الفعالية</h2><div class="gallery">${gallery.map(g => `<a href="${esc(g)}" target="_blank" rel="noopener"><img src="${esc(g)}" alt="صورة من الفعالية" loading="lazy"></a>`).join('')}</div>` : ''}
@@ -206,7 +222,7 @@ async function teamPage() {
       ${ch.length ? `<ul>${ch.map(c => node(c, false)).join('')}</ul>` : ''}</li>`;
   };
   const committees = [...new Set(members.map(m => m.committee).filter(Boolean))];
-  main.innerHTML = pageHead('فريق رصين', 'الهيكل الإداري للنادي، ثم قائمة الأعضاء.') + `
+  main.innerHTML = pageHead('فريق رصين', 'الطلاب والطالبات الذين يعملون على أن يكون لكل زميل فرصة في البحث العلمي.') + `
   <section class="section"><div class="wrap">
     <h2>الإدارة</h2>
     ${roots.length ? `<div class="tree-wrap"><ul class="tree">${roots.map(r => node(r, true)).join('')}</ul></div>` : '<div class="empty"><b>لم تُضف الإدارة بعد</b></div>'}
@@ -399,7 +415,7 @@ async function circlesPage() {
 
 /* ---------- الاقتراحات ---------- */
 async function suggestPage() {
-  main.innerHTML = pageHead('اقترح على النادي', 'اقتراحك يصل إلى إدارة رصين مباشرة. لا تحتاج إلى تسجيل، والاسم اختياري.') + `
+  main.innerHTML = pageHead('اقترح على النادي', 'نحب أن نسمع منك. اقتراحك يصل إلى إدارة رصين مباشرة، بلا تسجيل، والاسم اختياري.') + `
   <section class="section"><div class="wrap" style="max-width:720px">
     <div class="card" id="sg-box"><form class="form" novalidate>
       <div class="field"><label for="s-cat">نوع الاقتراح</label>
